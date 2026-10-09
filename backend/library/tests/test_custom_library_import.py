@@ -637,8 +637,25 @@ class TestCustomLibraryImportYAML:
             "description: A sample assessable requirement\n"
             "      annotation: Test annotation\n"
             "      typical_evidence: Test evidence\n"
+            "      visibility_expression: 'true'\n"
+            "      target_score: 80\n"
+            "      min_score: 0\n"
+            "      max_score: 1\n"
+            "      scores_definition_ref: binary\n"
+            "      weight: 3\n"
+            "      importance: mandatory\n"
             "      implementation_groups:\n"
             "      - base",
+        ).replace(
+            "    description: A sample framework\n",
+            "    description: A sample framework\n"
+            "    scores_definition:\n"
+            "      alternatives:\n"
+            "        binary:\n"
+            "        - score: 0\n"
+            "          name: 'No'\n"
+            "        - score: 1\n"
+            "          name: 'Yes'\n",
         )
 
         response1 = _upload_yaml(
@@ -651,9 +668,6 @@ class TestCustomLibraryImportYAML:
 
         node_urn = "urn:intuitem:test:req_node:sample-fw-reg:cat-1.1"
         node = RequirementNode.objects.get(urn=node_urn)
-        # Seed this experimental field directly without exposing it in library imports.
-        node.visibility_expression = "true"
-        node.save(update_fields=["visibility_expression"])
 
         assert node.ref_id == "CAT-1.1"
         assert node.name == "Requirement 1.1"
@@ -661,6 +675,12 @@ class TestCustomLibraryImportYAML:
         assert node.annotation == "Test annotation"
         assert node.typical_evidence == "Test evidence"
         assert node.visibility_expression == "true"
+        assert node.target_score == 80
+        assert node.min_score == 0
+        assert node.max_score == 1
+        assert node.scores_definition_ref == "binary"
+        assert node.weight == 3
+        assert node.importance == RequirementNode.Importance.MANDATORY
         assert node.implementation_groups == ["base"]
         assert node.order_id == 1
 
@@ -721,6 +741,12 @@ objects:
         assert node.annotation is None
         assert node.typical_evidence is None
         assert node.visibility_expression is None
+        assert node.target_score is None
+        assert node.min_score is None
+        assert node.max_score is None
+        assert node.scores_definition_ref is None
+        assert node.weight == 1
+        assert node.importance == RequirementNode.Importance.UNDEFINED
         assert node.implementation_groups is None
         assert node.order_id == 2
 

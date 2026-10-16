@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# db/ is excluded from the image (.dockerignore); create it when no volume is mounted
+mkdir -p db
 # wait for database to be ready
 if [ ! -n "$DJANGO_SETTINGS_MODULE" ]; then
   export DJANGO_SETTINGS_MODULE=ciso_assistant.settings

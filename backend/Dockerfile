@@ -58,8 +58,8 @@ COPY pyproject.toml uv.lock ./
 
 # torch is pinned to the PyTorch CPU index in pyproject.toml/uv.lock, so the CUDA
 # wheels are never resolved or downloaded — a plain locked sync is enough.
-RUN --mount=type=cache,target=/root/.cache/uv \
-  uv sync --locked --no-dev
+# No BuildKit cache mount: Railway rejects cache mounts without its own id prefix.
+RUN uv sync --locked --no-dev --no-cache
 
 # Pre-bake the embedding and reranker models into the image so the AI works with no
 # internet at runtime (otherwise sentence-transformers downloads them from HuggingFace

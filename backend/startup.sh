@@ -28,8 +28,15 @@ GUNICORN_KEEPALIVE=${GUNICORN_KEEPALIVE:-30}
 GUNICORN_LIMIT_REQUEST_LINE=${GUNICORN_LIMIT_REQUEST_LINE:-5120}
 GUNICORN_PORT=${PORT:-8000}
 
+# Always listen on 8000 so the port is fixed even when the platform (e.g. Railway)
+# injects its own PORT; also listen on PORT when it differs.
+GUNICORN_BINDS="--bind :8000"
+if [ "$GUNICORN_PORT" != "8000" ]; then
+  GUNICORN_BINDS="$GUNICORN_BINDS --bind :$GUNICORN_PORT"
+fi
+
 exec gunicorn --chdir ciso_assistant \
-  --bind :$GUNICORN_PORT \
+  $GUNICORN_BINDS \
   --timeout $GUNICORN_TIMEOUT \
   --keep-alive $GUNICORN_KEEPALIVE \
   --workers=$GUNICORN_WORKERS \
